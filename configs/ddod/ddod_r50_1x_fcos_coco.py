@@ -10,7 +10,7 @@ model = dict(
         norm_cfg=dict(type='BN', requires_grad=True),
         norm_eval=True,
         style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='data/pretrain_models/resnet50-0676ba61.pth')), # https://download.pytorch.org/models/resnet50-0676ba61.pth
+        init_cfg=dict(type='Pretrained', checkpoint='open-mmlab://resnest50')),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -19,7 +19,7 @@ model = dict(
         add_extra_convs='on_output',
         num_outs=5),
     bbox_head=dict(
-        type='DDODHead',
+        type='DDODFCOSHead',
         num_classes=80,
         in_channels=256,
         stacked_convs=4,
@@ -30,10 +30,15 @@ model = dict(
             octave_base_scale=8,
             scales_per_octave=1,
             strides=[8, 16, 32, 64, 128]),
+        # bbox_coder=dict(
+        #     type='DeltaXYWHBBoxCoder',
+        #     target_means=[.0, .0, .0, .0],
+        #     target_stds=[0.1, 0.1, 0.2, 0.2]),
         bbox_coder=dict(
-            type='DeltaXYWHBBoxCoder',
-            target_means=[.0, .0, .0, .0],
-            target_stds=[0.1, 0.1, 0.2, 0.2]),
+            type='TBLRCenterCoder',
+            normalizer=1/8.,
+            normalize_by_wh=True
+        ), 
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -87,31 +92,13 @@ test_pipeline = [
             dict(type='Collect', keys=['img']),
         ])
 ]
-# data = dict(
-#     samples_per_gpu=4,
-#     workers_per_gpu=2,
-#     train=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_train2017.json',
-#         img_prefix=data_root + 'train2017/',
-#         pipeline=train_pipeline),
-#     val=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_val2017.json',
-#         img_prefix=data_root + 'val2017/',
-#         pipeline=test_pipeline),
-#     test=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_val2017.json',
-#         img_prefix=data_root + 'val2017/',
-#         pipeline=test_pipeline))
 data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=1,
+    samples_per_gpu=4,
+    workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'val2017/',
+        ann_file=data_root + 'annotations/instances_train2017.json',
+        img_prefix=data_root + 'train2017/',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
@@ -123,7 +110,7 @@ data = dict(
         ann_file=data_root + 'annotations/instances_val2017.json',
         img_prefix=data_root + 'val2017/',
         pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='bbox')
+evaluation = dict(interval=12, metric='bbox')
 # optimizer
 optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)

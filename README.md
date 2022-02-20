@@ -1,4 +1,14 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-02-11 20:05:32
+ * @LastEditTime: 2022-02-12 15:22:45
+ * @LastEditors: Irving.Gao
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /DDOD/README.md
+-->
+
 # Disentangle Your Dense Object Detector
+
 
 This repo contains the supported code and configuration files to reproduce object detection results of [Disentangle Your Dense Object Detector](https://arxiv.org/abs/2107.02963). It is based on [mmdetection](https://github.com/open-mmlab/mmdetection).
 
@@ -16,6 +26,16 @@ This repo contains the supported code and configuration files to reproduce objec
 
 Please refer to [get_started.md](https://github.com/open-mmlab/mmdetection/blob/master/docs/get_started.md) for installation and dataset preparation.
 
+Or you can also fllow the simple steps:
+
+```bash
+git clone https://github.com/Irvingao/DDOD.git
+cd DDOD
+pip install -r requirements/build.txt
+pip install -v -e .  
+```
+
+
 ### Inference
 ```
 # multi-gpu testing
@@ -25,6 +45,11 @@ tools/dist_test.sh coco_cfg/ddod_r50_1x.py <DET_CHECKPOINT_FILE> 8 --eval bbox
 ### Training
 
 To train a detector with pre-trained models, run:
+```
+# single-gpu training
+python tools/train.py coco_cfg/ddod_r50_1x.py
+```
+
 ```
 # multi-gpu training
 tools/dist_train.sh coco_cfg/ddod_r50_1x.py 8
